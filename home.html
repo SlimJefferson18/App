@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Patient Information</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #searchContainer {
+            margin-bottom: 20px;
+        }
+
+        #searchBtn {
+            margin-left: 10px;
+        }
+
+        table {
+            font-family: Arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        th {
+            text-align: left;
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        td {
+            padding: 0.5rem;
+        }
+
+        .patient-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .patient-address {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .action-btn {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Patient Information</h1>
+
+    <div id="searchContainer" class="input-group">
+        <input type="text" class="form-control" id="name" placeholder="Recherche par nom">
+        <div class="input-group-append">
+            <button class="btn btn-primary" id="searchBtn" onclick="searchPatients()">Rechercher</button>
+        </div>
+    </div>
+
+    <div class="bouton mb-3">
+        <a href="form_add_boot.html" class="btn btn-success">Ajouter un patient</a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Birth Date</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="patientTable"></tbody>
+    </table>
+
+    <script>
+      const patientTable = document.getElementById("patientTable");
+
+      fetch("https://wildfhir3.aegis.net/fhir3-0-2/Patient/",{
+       // method: "GET",
+        headers:{
+          'Accept': 'application/json',
+          "Content-Type": "application/fhir+json"
+        }
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          data.entry.forEach((entry) => {
+            const patient = entry.resource;
+
+            const row = patientTable.insertRow();
+
+            const idCell = row.insertCell();
+            idCell.appendChild(document.createTextNode(patient.id));
+
+            const nameCell = row.insertCell();
+            nameCell.classList.add("patient-name");
+            nameCell.appendChild(
+              document.createTextNode(
+                patient.name[0].text || 
+                `${patient.name[0].prefix ? patient.name[0].prefix.join(' ') + ' ' : ''}${patient.name[0].given ? patient.name[0].given.join(' ') + ' ' : ''}${patient.name[0].family || ''}${patient.name[0].suffix ? ' ' + patient.name[0].suffix.join(' ') : ''}`
+              )
+            );
+
+            const genderCell = row.insertCell();
+            genderCell.appendChild(document.createTextNode(patient.gender));
+
+            const birthDateCell = row.insertCell();
+            birthDateCell.appendChild(document.createTextNode(patient.birthDate));
+
+            const addressCell = row.insertCell();
+            addressCell.classList.add("patient-address");
+            addressCell.appendChild(
+              document.createTextNode(
+                patient.address ? patient.address[0].text || `${patient.address[0].line ? patient.address[0].line.join(' ') + ', ' : ''}${patient.address[0].city || ''}${patient.address[0].state ? ', ' + patient.address[0].state : ''}${patient.address[0].postalCode ? ', ' + patient.address[0].postalCode : ''}${patient.address[0].country ? ', ' + patient.address[0].country : ''}` : ''
+              )
+        );
+
+        const phoneCell = row.insertCell();
+        phoneCell.appendChild(
+          document.createTextNode(patient.telecom ? patient.telecom.find((telecom) => telecom.system === "phone")?.value || '' : '')
+        );
+
+        const emailCell = row.insertCell();
+        emailCell.appendChild(
+          document.createTextNode(patient.telecom ? patient.telecom.find((telecom) => telecom.system === "email")?.value || '' : '')
+        );
+
+        const ActionCell = row.insertCell();
+        var quote='"';
+        var nom = patient.name[0].family;
+        let Edit = document.createElement("a");
+       Edit.innerHTML = "<button onclick='Modifier(" + JSON.stringify(patient.id) + ", " + JSON.stringify(patient.name[0].family) + ")'>Modifier</button>";
+       let DeleteCell = document.createElement("a");
+        //Delete.innerHTML="<button onClick='Delete("+ quote + nom +quote+")'>Supprimer</button>"
+		//const DeleteCell = row.insertCell();
+        DeleteCell.innerHTML = "<button onclick='Delete(" + JSON.stringify(patient.id) + "," + JSON.stringify(patient.name[0].family) + ")'>Supprimer</button>";
+        ActionCell.appendChild(Edit);
+        ActionCell.appendChild(DeleteCell);
+		
+
+
+      });
+    })
+    .catch((error) => console.log(error));
+	
+	const searchBtn = document.getElementById("searchBtn");
+const nameInput = document.getElementById("name");
+
+searchBtn.addEventListener("click", () => {
+  const searchText = nameInput.value.toLowerCase().trim();
+  const patientRows = patientTable.getElementsByTagName("tr");
+
+  for (let i = 0; i < patientRows.length; i++) {
+    const patientName = patientRows[i].getElementsByClassName("patient-name")[0].textContent.toLowerCase();
+    if (patientName.includes(searchText)) {
+      patientRows[i].style.display = "";
+    } else {
+      patientRows[i].style.display = "none";
+    }
+  }
+});
+
+	
+function Delete(id, name) {
+  if (confirm("Voulez-vous supprimer " + name + " ?")) {
+    fetch("https://wildfhir3.aegis.net/fhir3-0-2/Patient/" + id, {
+      method: "DELETE",
+    })
+      .then(() => {
+        alert("Le patient a été supprimé avec succès.");
+        window.location.reload(); // recharge la page pour afficher la liste mise à jour
+      })
+      .catch((error) => console.log(error));
+  }
+}
+
+      function Modifier(id, nom) {
+    // Rediriger vers la page de modification avec l'ID du patient
+    window.location.href = "form_edit.html?id=" + id;
+
+    }
+</script>
+  </body>
+<!-- </html> -->

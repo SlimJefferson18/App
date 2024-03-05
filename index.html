@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Formulaire de connexion</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      margin-top: 50px;
+    }
+
+    .card {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header text-center">
+          <h2 class="mb-0">Connexion</h2>
+        </div>
+        <div class="card-body">
+          <form>
+            <div class="form-group">
+              <label for="username">Nom d'utilisateur</label>
+              <input type="text" class="form-control" id="username" placeholder="Entrez votre nom d'utilisateur">
+            </div>
+            <div class="form-group">
+              <label for="password">Mot de passe</label>
+              <input type="password" class="form-control" id="password" placeholder="Entrez votre mot de passe">
+            </div>
+            <button type="button" class="btn btn-primary btn-block" onclick="validate()">Se connecter</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function validate() {
+    var username = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+    if (username === "admin" && password === "admin123") {
+      window.location.href = "home.html";
+    } else {
+      alert("Login ou mot de passe incorrect.");
+    }
+  }
+</script>
+
+</body>
+</html>

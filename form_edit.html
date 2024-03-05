@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>Formulaire de modification d'un patient</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <style>
+        body {
+            background: rgb(2, 230, 253);
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .choice {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Formulaire de modification d'un patient</h2>
+        <form onsubmit="modifierPatient(); return false;">
+            <div class="form-group">
+                <label for="ID">ID</label>
+                <input type="text" class="form-control" id="ID" placeholder="Entrez l'ID">
+            </div>
+            <div class="form-group">
+                <label for="nom">Nom complet</label>
+                <input type="text" class="form-control" id="nom" placeholder="Entrez le nom complet">
+            </div>
+            <div class="form-group">
+                <label>Genre</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="Field5" id="Field5_0" value="Male" checked>
+                    <label class="form-check-label choice" for="Field5_0">Male</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="Field5" id="Field5_1" value="Female">
+                    <label class="form-check-label choice" for="Field5_1">Female</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="Field5" id="Field5_2" value="Other">
+                    <label class="form-check-label choice" for="Field5_2">Other</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="datenaiss">Date de naissance</label>
+                <input type="date" class="form-control" id="datenaiss">
+            </div>
+            <div class="form-group">
+                <label for="adresse">Adresse</label>
+                <textarea class="form-control" id="adresse" placeholder="Entrez l'adresse"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="telephone">Numéro de téléphone</label>
+                <input type="text" class="form-control" id="telephone" placeholder="Entrez votre numéro de téléphone">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Entrez votre email">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Modifier</button>
+        </form>
+        <button type="button" class="btn btn-secondary mt-3" onclick="retourPageHome()">Retour</button>
+    </div>
+
+    <script>
+        // Fonction de modification du patient et redirection vers home.html
+        function modifierPatient() {
+            // Récupération des valeurs du formulaire
+            var patientID = document.getElementById("ID").value;
+            var patientName = document.getElementById("nom").value;
+            var patientGender = document.querySelector('input[name="Field5"]:checked').value;
+            var patientBirthdate = document.getElementById("datenaiss").value;
+            var patientAddress = document.getElementById("adresse").value;
+            var patientPhone = document.getElementById("telephone").value;
+            var patientEmail = document.getElementById("email").value;
+
+            // Construction de l'objet JSON contenant les données mises à jour du patient
+            var patientData = {
+                "ID": patientID,
+                "name": patientName,
+                "gender": patientGender,
+                "birthDate": patientBirthdate,
+                "address": patientAddress,
+                "phone": patientPhone,
+                "email": patientEmail
+            };
+
+            // Envoi de la requête HTTP POST (ou PUT) à l'API sur le serveur
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://wildfhir3.aegis.net/fhir3-0-2/Patient/", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        alert("Modification réussie !");
+                        window.location.href = "home.html"; // Redirection vers home.html
+                    } else {
+                        alert("Échec de la modification. Veuillez réessayer.");
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(patientData));
+        }
+
+        // Fonction de retour vers la page home.html
+        function retourPageHome() {
+            window.location.href = "home.html";
+        }
+    </script>
+</body>
+</html>
